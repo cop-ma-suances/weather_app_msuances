@@ -18,8 +18,10 @@ const MainPage = () => {
 
     const onClickHandler = (city, countryCode) => {
         // history.push permite alterar la URL por programación
-        /* history.push("/city") */
-        console.info("cityClicc (city,country)=> ", city,countryCode)
+        console.log("cityClicc (city)=> ", city)
+        console.log("cityClicc (country)=> ", countryCode)
+
+        history.push(`/city/${countryCode}/${city}`)
     }
 
     return (

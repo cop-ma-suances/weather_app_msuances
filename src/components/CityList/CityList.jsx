@@ -1,7 +1,10 @@
-import React, {useEffect, useState} from 'react'
-import PropTypes, { array } from 'prop-types'
+import React, { useState, useEffect } from 'react'
+import PropTypes from 'prop-types'
 import axios from 'axios'
-import {Grid, List, ListItem, Alert} from '@mui/material'
+import Grid from '@mui/material/Grid'
+import List from '@mui/material/List'
+import ListItem from '@mui/material/ListItem'
+import Alert from '@mui/material/Alert'
 import CityInfo from './../CityInfo'
 import Weather from './../Weather'
 import convertUnits from 'convert-units'
@@ -18,17 +21,19 @@ const renderCityAndCountry = eventOnClickCity => (cityAndCountry, weather) => {
         <ListItem
             button
             key={getCityCode(city, countryCode)} 
-            onClick={eventOnClickCity} >
+            onClick={() => eventOnClickCity(city, countryCode)} >
             <Grid container 
                 justify="center"
                 alignItems="center"
             >
                 <Grid item
-                    md={9}
+                    md={8}
                     xs={12}>
                     <CityInfo city={city} country={country} />
                 </Grid>
-                <Grid item md={3} xs={12}>
+                <Grid item
+                    md={4}
+                    xs={12}>
                     <Weather 
                         temperature={weather && weather.temperature} 
                         state={weather && weather.state} />
@@ -51,23 +56,19 @@ const CityList = ({ cities, onClickCity }) => {
             const url = `https://api.openweathermap.org/data/2.5/weather?q=${city},${countryCode}&appid=${appId}`;
 
             console.log(url);
-            const response = await axios.get(url);
             try {
-                const {data} = response;
-                const temperature = Number(convertUnits(data.main.temp).from("K").to("C").toFixed(0));
-                const state = `${data.weather[0].main}`.toLowerCase();
-                
-                const propName = getCityCode(city, countryCode);
-                const propValue = {temperature, state};
-                console.log("[state] ", propValue);
-                console.log("[weather.main] ", data.weather[0].main);
+                const response = await axios.get(url)
 
-                // Dado el valor pasado (objeto weather {propName: value}), se actualiza en el array si existe la propiedad, o se añade si no existe
-                setAllWeather(allWeather => {
-                    const result = {...allWeather, [propName]: propValue };
-                    console.log("[setAllWeather] ", result);
-                    return result;
-                });
+                const { data } = response
+                const temperature = Number(convertUnits(data.main.temp).from("K").to("C").toFixed(0))
+                /* const state = "diferente"  */
+                const state = data.weather[0].main.toLowerCase()
+    
+                const propName = getCityCode(city, countryCode)
+                const propValue = { temperature, state } // Ej: { temperature: 10, state: "sunny" }
+
+		        // Dado el valor pasado (objeto weather {propName: value}), se actualiza en el array si existe la propiedad, o se añade si no existe
+                setAllWeather(allWeather => ({ ...allWeather, [propName]: propValue }))                
             } catch (error) {
                 if(error.response) {
                     // Errores en el lado servidor
@@ -86,40 +87,6 @@ const CityList = ({ cities, onClickCity }) => {
                 }
             }
 
-                /* .then(response => {
-                    const {data} = response;
-                    const temperature = Number(convertUnits(data.main.temp).from("K").to("C").toFixed(0));
-                    const state = `${data.weather[0].main}`.toLowerCase();
-                    
-                    const propName = `${city}-${country}`;
-                    const propValue = {temperature, state};
-                    console.log("[state] ", propValue);
-                    console.log("[weather.main] ", data.weather[0].main);
-
-                    // Dado el valor pasado (objeto weather {propName: value}), se actualiza en el array si existe la propiedad, o se añade si no existe
-                    setAllWeather(allWeather => {
-                        const result = {...allWeather, [propName]: propValue };
-                        console.log("[setAllWeather] ", result);
-                        return result;
-                    });
-                })
-                .catch(error => {
-                    if(error.response) {
-                        // Errores en el lado servidor
-                        const { data, status } = error.response;
-                        console.info("axios_error: ", data);
-                        console.info("axios_error_status: ", status);
-                        setError("Se produjo un error en el servidor")
-                    } else if(error.request) {
-                        // Errores por no llegar al servidor
-                        console.info("Server unavailable or not connected")
-                        setError("Se produjo un error intentando conectar con el servidor")
-                    } else if(error.request) {
-                        // Errores imprevistos
-                        console.info("Oops! an unexpected error ocurred")
-                        setError("Se produjo un error inesperado")
-                    }
-                }) */
         }
 
         cities.forEach(({ city, countryCode }) => {
@@ -133,7 +100,7 @@ const CityList = ({ cities, onClickCity }) => {
     return (
         <div>
             {
-                error && <Alert severity="error" >{error}</Alert> 
+                error && <Alert onClose={() => setError(null)} severity="error">{error}</Alert>
             }
             <List>
                 {

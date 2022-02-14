@@ -1,6 +1,8 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import {Typography, Grid, Skeleton} from '@mui/material'
+import Typography from '@mui/material/Typography'
+import Grid from '@mui/material/Grid'
+import Skeleton from '@mui/material/Skeleton'
 import { IconContext } from 'react-icons'
 import IconState, { validValues } from './../IconState'
 
@@ -23,7 +25,7 @@ const Weather = ({ temperature, state }) => {
                 temperature ?
                 <Typography display="inline" variant="h2">{temperature}</Typography>
                 :
-                <Skeleton variant="react" height={80} width={80}></Skeleton>
+                <Skeleton variant="rect" height={80} width={80}></Skeleton>
             }
         </Grid>
     )
